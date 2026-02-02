@@ -1,0 +1,44 @@
+# ============================================================================
+# REQUIREMENTS.TXT - Python Dependencies for Model Submission
+# ============================================================================
+#
+# This file lists all Python packages required by your model.py file.
+# The competition ingestion program will automatically install these packages
+# using: pip install -r requirements.txt
+#
+# WHAT MUST PARTICIPANTS PROVIDE?
+# --------------------------------
+# Participants MUST provide a requirements.txt file if their model uses any
+# external Python packages (beyond the standard library).
+#
+# WHAT IS OPTIONAL?
+# -----------------
+# - If your model only uses standard library (no external packages), you can
+#   omit this file or leave it empty.
+# - Version constraints (>=, ==, etc.) are optional but recommended for
+#   reproducibility.
+#
+# WHAT CAN PARTICIPANTS CHANGE?
+# ------------------------------
+# Everything! Add any packages your model needs:
+# - Deep learning: tensorflow, torch, keras, etc.
+# - Machine learning: scikit-learn, xgboost, lightgbm, etc.
+# - Image processing: opencv-python, pillow, scikit-image, etc.
+# - Utilities: pandas, tqdm, etc.
+#
+# IMPORTANT NOTES:
+# ----------------
+# - One package per line
+# - Use standard pip format: package_name>=version
+# - The competition environment has Python 3.9+ and common packages pre-installed
+# - Large packages (like TensorFlow) may take time to install - be patient
+# - If installation fails, check package names and versions
+#
+# ============================================================================
+# BASELINE REQUIREMENTS (scikit-learn version)
+# ============================================================================
+# This baseline uses scikit-learn, so we need numpy and scikit-learn.
+# Participants can modify this to include their own dependencies.
+
+numpy>=1.21.0
+scikit-learn>=1.0.0
