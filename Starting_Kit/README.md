@@ -1,4 +1,4 @@
-# 🌾 Grain Variety Classification Challenge
+# Grain Variety Classification Challenge
 
 **Starting Kit - Complete Guide for Participants**
 
@@ -6,7 +6,7 @@ This repository contains the **starting kit and materials** for **Group 1 (Grain
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Challenge Overview](#challenge-overview)
 2. [Understanding the Classification Task](#understanding-the-classification-task)
@@ -21,7 +21,7 @@ This repository contains the **starting kit and materials** for **Group 1 (Grain
 
 ## Challenge Overview
 
-### 🎯 Main Objective
+### Main Objective
 
 The goal of this challenge is to **develop an artificial intelligence model capable of automatically classifying wheat grain varieties** from images. 
 
@@ -30,7 +30,7 @@ The goal of this challenge is to **develop an artificial intelligence model capa
 - It ensures quality, traceability, and compliance of harvests
 - Automating this task can significantly improve agricultural process efficiency
 
-### 🔬 Scientific Context
+### Scientific Context
 
 The data comes from grain images captured using two types of imaging techniques:
 - **RGB Imaging**: Standard color images (3 channels: Red, Green, Blue)
@@ -38,7 +38,7 @@ The data comes from grain images captured using two types of imaging techniques:
 
 Each grain was photographed individually, and each image is associated with a known variety (the "label" or "ground truth").
 
-### 🎓 What You Will Learn
+### What You Will Learn
 
 By participating in this challenge, you will:
 1. **Handle imaging data** for classification
@@ -51,7 +51,7 @@ By participating in this challenge, you will:
 
 ## Understanding the Classification Task
 
-### 🎯 What We Want to Predict (Target / Labels)
+### What We Want to Predict (Target / Labels)
 
 **Question to solve**: "What is the variety of this grain?"
 
@@ -59,14 +59,14 @@ By participating in this challenge, you will:
 - **Task type**: **Multi-class classification**
   - Unlike binary classification (yes/no), we have multiple possible classes (8 different varieties)
 - **Number of classes**: 8 different varieties
-- **Format**: Integer representing the variety (e.g., 2, 3, 4, 5, 6, 7, 8, 9)
+- **Format**: Integer representing the variety (e.g., 2, 3, 4, 5, 6)
 
 **Concrete example**:
 - You have an image of a grain
 - The model must answer: "This grain is variety 7"
 - There are 8 possible answers
 
-### 📸 Our Features (Input Variables)
+### Our Features (Input Variables)
 
 **What the model "sees"**: Individual grain images
 
@@ -89,28 +89,7 @@ By participating in this challenge, you will:
   - `timestamp`: Date and time of image acquisition
   - `year`, `month`, `day`: Detailed temporal information
 
-### 📁 Data Structure
-
-**File format**: Each grain is stored in a `.npz` file (compressed NumPy format)
-
-Each `.npz` file contains:
-- **`x`**: The grain image (NumPy array) - **This is our main feature** ⭐
-  - This is what the model will analyze to make its prediction
-  
-- **`y`**: The label/variety (integer) - **This is what we want to predict** 🎯
-  - This is the "correct answer" that the model must learn to predict
-  
-- **`original_filename`**: Original filename (for traceability)
-- **`bands`**: Spectral band information (for spectral data only)
-
-**Practical example**:
-```python
-data = np.load("grain123.npz")
-image = data["x"]  # The grain image (what we give to the model)
-variety = data["y"]  # The variety (what we want to predict, e.g., 7)
-```
-
-### 🎯 Generalization Challenge
+### Generalization Challenge
 
 **What is generalization?**
 Generalization is the ability of a model to work correctly on **new data it has never seen** during training.
@@ -120,8 +99,7 @@ A model that works well on training data but fails on new data is useless in pra
 
 **The challenge**:
 The model must be able to correctly classify grains from:
-- **Different microplots** (32 different microplots)
-  - Growing conditions can vary by location
+
 - **Different acquisition dates** (2020-2021)
   - Lighting, humidity, etc. conditions can vary over time
 - **Different imaging conditions**
@@ -133,7 +111,7 @@ The model must be able to correctly classify grains from:
 
 ## Data Description
 
-### 📦 File Structure
+### File Structure
 
 Data is stored in `.npz` files (compressed NumPy format). Each file contains:
 - **`x`**: The grain image (NumPy array)
@@ -141,7 +119,15 @@ Data is stored in `.npz` files (compressed NumPy format). Each file contains:
   - Spectral Dataset: Multiple channels → shape `(H, W, N_bands)`
 - **`y`**: The label/variety (integer) - what we want to predict
 
-### 📝 Metadata in Filenames
+**Practical example**:
+
+```python
+data = np.load("grain123.npz")
+image = data["x"]  # The grain image (what we give to the model)
+variety = data["y"]  # The variety (what we want to predict, e.g., 7)
+```
+
+### Metadata in Filenames
 
 Each filename contains important information:
 - **`grainID`**: Unique grain identifier (e.g., `grain123`)
@@ -151,7 +137,7 @@ Each filename contains important information:
 
 **Filename format**: `grain{grainID}_x{x}y{y}-var{varietyNumber}_{timestamp}_corr.npz`
 
-### 🎯 Dataset Choice
+### Dataset Choice
 
 You can choose between two datasets:
 
@@ -169,7 +155,7 @@ You can choose between two datasets:
 
 **💡 Tip**: Start with the RGB dataset, then try the spectral dataset if you want to improve your performance!
 
-### 📊 Sample Data Mode
+### Sample Data Mode
 
 **For testing purposes**, you can use a limited number of samples to quickly test the pipeline:
 
@@ -187,12 +173,13 @@ Always test with full data before final submission!
 
 ## Model Architecture
 
-### 🤖 Our Baseline Model
+### Our Baseline Model
 
 **What is a baseline?**
 A baseline is a simple model that serves as a **starting point**. It is not optimized for best performance, but it works and gives you a reference to improve upon.
 
 **Current Baseline**: Random Forest Classifier (scikit-learn)
+
 - **Algorithm**: Random Forest (ensemble of decision trees)
 - **Input**: Images resized to `(64, 64)` and flattened
 - **Preprocessing**: Resize, normalize, standardize features
@@ -204,7 +191,7 @@ A baseline is a simple model that serves as a **starting point**. It is not opti
 - Good starting point for understanding the problem
 - Easy to modify and improve
 
-### 💡 Improvement Suggestions
+### Improvement Suggestions
 
 To beat the baseline, you can try:
 
@@ -238,13 +225,13 @@ To beat the baseline, you can try:
    - Model ensembles
    - Cross-validation
 
-**💡 Tip**: Start by improving one thing at a time, then combine the best techniques!
+**Tip**: Start by improving one thing at a time, then combine the best techniques!
 
 ---
 
 ## Evaluation Metrics
 
-### 📊 The 3 Key Metrics
+### The 3 Key Metrics
 
 We use **3 key metrics** well-suited for multi-class classification:
 
@@ -262,7 +249,7 @@ We use **3 key metrics** well-suited for multi-class classification:
    - Provides a more informative measure than accuracy alone
    - Measures agreement beyond what would be expected by chance
 
-### 📈 Error Bars with Bootstrap
+### Error Bars with Bootstrap
 
 The evaluation system also supports **bootstrap sampling** to compute confidence intervals:
 
@@ -276,7 +263,7 @@ The evaluation system also supports **bootstrap sampling** to compute confidence
 
 ## Getting Started
 
-### 📚 How to Use the Starting Kit
+### How to Use the Starting Kit
 
 1. Navigate to the `Starting_Kit/` folder  
 2. Open `README.ipynb` (the main notebook)
@@ -291,12 +278,14 @@ The notebook is organized into **main sections**:
 5. **Section 4**: Model evaluation and scoring
 6. **Section 5**: Submission preparation
 
-**⚠️ Important note**: 
+**Important note**: 
+
 - This notebook provides a **simple baseline** that works but is not optimized
 - **Your goal**: Improve this baseline to achieve better performance
 - **Improvement suggestions**: See the [Model Architecture](#model-architecture) section above
 
-**💡 Tips for getting started**:
+**Tips for getting started**:
+
 1. Read and execute each section in order
 2. Understand what each part does before modifying it
 3. Experiment progressively (one modification at a time)
@@ -376,15 +365,10 @@ The starting kit notebook is designed to be compatible with Codabench submission
 
 ### Submission Types
 
-1. **Code Submission**: Submit your trained model
-   - The platform will load your model and run it on test data
-   - Requires implementing the Model class interface (see `Competition_Bundle/sample_code_submission/model.py`)
+**Result Submission**: Submit predictions directly
 
-2. **Result Submission**: Submit predictions directly
-   - Pre-compute predictions on test data
-   - Submit the predictions file
-
-Check the competition rules to determine which type is required.
+- Pre-compute predictions on test data
+- Submit the predictions file
 
 ### Scoring
 
@@ -418,7 +402,7 @@ This starting kit and challenge materials are provided for educational purposes 
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 ### Getting Help
 
