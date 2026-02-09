@@ -20,10 +20,8 @@ from sklearn.metrics import (
     classification_report, confusion_matrix, accuracy_score,
     f1_score, cohen_kappa_score
 )
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.applications import EfficientNetB0
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 
 
 # ============================================================================
@@ -452,9 +450,14 @@ class Train:
             img = data["x"]
             label = data["y"]
             
-            # Resize image if needed
+            # Resize image if needed (using center crop, similar to model.py baseline)
             if img.shape[:2] != self.img_size:
-                img_resized = tf.image.resize(img, self.img_size).numpy()
+                h, w = img.shape[:2]
+                target_h, target_w = self.img_size
+                # Center crop: take middle portion of the image
+                start_h = (h - target_h) // 2
+                start_w = (w - target_w) // 2
+                img_resized = img[start_h:start_h+target_h, start_w:start_w+target_w]
             else:
                 img_resized = img
             
@@ -481,6 +484,12 @@ class Train:
         # Normalize images to [0, 1]
         X = X / 255.0 if X.max() > 1.0 else X
         
+        # Flatten images for Random Forest (convert from 2D/3D to 1D vectors)
+        X_flat = []
+        for img in X:
+            X_flat.append(img.flatten())
+        X = np.array(X_flat, dtype=np.float32)
+        
         # Encode labels
         y_encoded = self.label_encoder.fit_transform(y)
         self.num_classes = len(self.label_encoder.classes_)
@@ -494,54 +503,49 @@ class Train:
         print(f"  Training samples: {len(self.X_train)}")
         print(f"  Test samples: {len(self.X_test)}")
         print(f"  Number of classes: {self.num_classes}")
-        print(f"  Image shape: {self.X_train[0].shape}")
+        print(f"  Feature vector shape: {self.X_train[0].shape}")
         print(f"  Classes: {self.label_encoder.classes_}")
     
-    def build_model(self):
+    def build_model(self, n_estimators=100, max_depth=None, random_state=None):
         """
-        Build a model using a pre-trained EfficientNetB0 for classification.
-        This is a baseline model using transfer learning - participants should improve it!
-        """
-        input_shape = (*self.img_size, 3)
-        
-        # Load pre-trained EfficientNetB0 (without top layers)
-        base_model = EfficientNetB0(
-            weights='imagenet',
-            include_top=False,
-            input_shape=input_shape
-        )
-        
-        # Freeze base model layers (optional - can unfreeze for fine-tuning)
-        base_model.trainable = False
-        
-        # Build the model
-        model = keras.Sequential([
-            base_model,
-            layers.GlobalAveragePooling2D(),
-            layers.Dense(128, activation='relu'),
-            layers.Dropout(0.5),
-            layers.Dense(self.num_classes, activation='softmax')
-        ])
-        
-        model.compile(
-            optimizer='adam',
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy']
-        )
-        
-        self.model = model
-        print("\nModel architecture:")
-        model.summary()
-        return model
-    
-    def train(self, epochs=10, batch_size=32, validation_split=0.1, verbose=1):
-        """
-        Train the model.
+        Build a Random Forest Classifier model.
+        This is a baseline model - participants should improve it!
         
         Args:
-            epochs: Number of training epochs
-            batch_size: Batch size for training
-            validation_split: Proportion of training data to use for validation
+            n_estimators: Number of trees in the forest (default: 100)
+            max_depth: Maximum depth of trees (None for no limit)
+            random_state: Random seed for reproducibility
+        """
+        if random_state is None:
+            random_state = self.random_state
+        
+        # Initialize Random Forest Classifier
+        model = RandomForestClassifier(
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            random_state=random_state,
+            n_jobs=-1,  # Use all available CPU cores
+            verbose=1
+        )
+        
+        # Initialize StandardScaler for feature normalization
+        self.scaler = StandardScaler()
+        
+        self.model = model
+        print("\nModel: Random Forest Classifier")
+        print(f"  Number of estimators (trees): {n_estimators}")
+        print(f"  Max depth: {max_depth if max_depth else 'No limit'}")
+        print(f"  Number of features: {self.X_train.shape[1] if self.X_train is not None else 'N/A'}")
+        return model
+    
+    def train(self, epochs=None, batch_size=None, validation_split=0.1, verbose=1):
+        """
+        Train the Random Forest model.
+        
+        Args:
+            epochs: Not used for Random Forest (kept for compatibility)
+            batch_size: Not used for Random Forest (kept for compatibility)
+            validation_split: Proportion of training data to use for validation (for reporting only)
             verbose: Verbosity level (0, 1, or 2)
         """
         if self.X_train is None:
@@ -550,17 +554,28 @@ class Train:
         if self.model is None:
             self.build_model()
         
-        print(f"\nTraining model for {epochs} epochs...")
+        print(f"\nTraining Random Forest model...")
+        print(f"  Training samples: {len(self.X_train)}")
+        print(f"  Number of features: {self.X_train.shape[1]}")
+        print(f"  Number of classes: {self.num_classes}")
         
-        self.history = self.model.fit(
-            self.X_train, self.y_train,
-            batch_size=batch_size,
-            epochs=epochs,
-            validation_split=validation_split,
-            verbose=verbose
-        )
+        # Scale features (important for Random Forest performance)
+        print("  Scaling features...")
+        X_train_scaled = self.scaler.fit_transform(self.X_train)
+        
+        # Train the model
+        print("  Training Random Forest (this may take a few minutes)...")
+        self.model.fit(X_train_scaled, self.y_train)
         
         print("\nTraining completed!")
+        
+        # Store training history (simplified for Random Forest)
+        self.history = {
+            'training_completed': True,
+            'n_samples': len(self.X_train),
+            'n_features': self.X_train.shape[1]
+        }
+        
         return self.history
     
     def evaluate(self):
@@ -568,95 +583,95 @@ class Train:
         Evaluate the model on test data.
         
         Returns:
-            dict: Dictionary containing test loss and accuracy
+            dict: Dictionary containing test accuracy and predictions
         """
         if self.model is None:
             raise ValueError("Model not trained. Call train() first.")
         
         print("\nEvaluating on test set...")
-        test_loss, test_accuracy = self.model.evaluate(self.X_test, self.y_test, verbose=0)
         
-        print(f"Test Loss: {test_loss:.4f}")
+        # Scale test features
+        X_test_scaled = self.scaler.transform(self.X_test)
+        
+        # Make predictions
+        y_pred = self.model.predict(X_test_scaled)
+        test_accuracy = accuracy_score(self.y_test, y_pred)
+        
         print(f"Test Accuracy: {test_accuracy:.4f}")
-        
-        # Predictions for detailed metrics
-        y_pred = self.model.predict(self.X_test, verbose=0)
-        y_pred_classes = np.argmax(y_pred, axis=1)
         
         print("\nClassification Report:")
         print(classification_report(
-            self.y_test, y_pred_classes,
+            self.y_test, y_pred,
             target_names=[f"Variety {cls}" for cls in self.label_encoder.classes_]
         ))
         
         return {
-            'test_loss': test_loss,
             'test_accuracy': test_accuracy,
-            'predictions': y_pred_classes
+            'predictions': y_pred
         }
     
     def plot_training_history(self):
-        """Plot training history (loss and accuracy)."""
+        """Plot training history (not applicable for Random Forest, but kept for compatibility)."""
         if self.history is None:
             print("No training history available.")
             return
         
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
-        
-        # Plot loss
-        ax1.plot(self.history.history['loss'], label='Training Loss')
-        ax1.plot(self.history.history['val_loss'], label='Validation Loss')
-        ax1.set_title('Model Loss')
-        ax1.set_xlabel('Epoch')
-        ax1.set_ylabel('Loss')
-        ax1.legend()
-        
-        # Plot accuracy
-        ax2.plot(self.history.history['accuracy'], label='Training Accuracy')
-        ax2.plot(self.history.history['val_accuracy'], label='Validation Accuracy')
-        ax2.set_title('Model Accuracy')
-        ax2.set_xlabel('Epoch')
-        ax2.set_ylabel('Accuracy')
-        ax2.legend()
-        
-        plt.tight_layout()
-        plt.show()
+        print("Note: Random Forest doesn't have epoch-based training history.")
+        print("Training completed successfully!")
+        print(f"  Training samples: {self.history.get('n_samples', 'N/A')}")
+        print(f"  Number of features: {self.history.get('n_features', 'N/A')}")
     
     def save_model(self, filepath):
         """Save the trained model."""
         if self.model is None:
             raise ValueError("No model to save. Train the model first.")
-        self.model.save(filepath)
+        import joblib
+        # Save both model and scaler
+        model_data = {
+            'model': self.model,
+            'scaler': self.scaler,
+            'label_encoder': self.label_encoder,
+            'num_classes': self.num_classes
+        }
+        joblib.dump(model_data, filepath)
         print(f"Model saved to {filepath}")
     
     def load_model(self, filepath):
         """Load a saved model."""
-        self.model = keras.models.load_model(filepath)
+        import joblib
+        model_data = joblib.load(filepath)
+        self.model = model_data['model']
+        self.scaler = model_data.get('scaler', None)
+        self.label_encoder = model_data.get('label_encoder', None)
+        self.num_classes = model_data.get('num_classes', None)
         print(f"Model loaded from {filepath}")
 
 
 class Score:
-    def __init__(self, train_obj=None, model=None, X_test=None, y_test=None, label_encoder=None):
+    def __init__(self, train_obj=None, model=None, X_test=None, y_test=None, label_encoder=None, scaler=None):
         """
         Initialize Score class.
         
         Args:
             train_obj: Train object containing trained model and test data (optional)
-            model: Trained Keras model (optional, if train_obj not provided)
+            model: Trained model (Random Forest or Keras, optional if train_obj not provided)
             X_test: Test images (optional, if train_obj not provided)
             y_test: Test labels (optional, if train_obj not provided)
             label_encoder: LabelEncoder used for encoding labels (optional)
+            scaler: StandardScaler used for feature scaling (optional, for Random Forest)
         """
         if train_obj is not None:
             self.model = train_obj.model
             self.X_test = train_obj.X_test
             self.y_test = train_obj.y_test
             self.label_encoder = train_obj.label_encoder
+            self.scaler = getattr(train_obj, 'scaler', None)
         else:
             self.model = model
             self.X_test = X_test
             self.y_test = y_test
             self.label_encoder = label_encoder
+            self.scaler = scaler
         
         self.y_pred = None
         self.y_pred_proba = None
@@ -675,8 +690,23 @@ class Score:
             raise ValueError("No test data available.")
         
         print("Generating predictions...")
-        self.y_pred_proba = self.model.predict(self.X_test, verbose=verbose)
-        self.y_pred = np.argmax(self.y_pred_proba, axis=1)
+        
+        # Check if model is Random Forest (has predict_proba method) or Keras
+        X_test_scaled = self.X_test
+        if self.scaler is not None:
+            # Random Forest: scale features first
+            X_test_scaled = self.scaler.transform(self.X_test)
+        
+        # Make predictions
+        if hasattr(self.model, 'predict_proba'):
+            # Random Forest: get both predictions and probabilities
+            self.y_pred = self.model.predict(X_test_scaled)
+            self.y_pred_proba = self.model.predict_proba(X_test_scaled)
+        else:
+            # Keras model: get probabilities and convert to classes
+            self.y_pred_proba = self.model.predict(X_test_scaled, verbose=verbose)
+            self.y_pred = np.argmax(self.y_pred_proba, axis=1)
+        
         print("Predictions generated!")
         return self.y_pred
     
