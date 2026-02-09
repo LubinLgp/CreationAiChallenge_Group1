@@ -1,79 +1,41 @@
 # Terms and Conditions
-***
-
-## General Rules
 
 This competition is for **educational and research purposes** only, and it is governed by the [General ChaLearn Contest Rules](http://www.causality.inf.ethz.ch/GeneralChalearnContestRuleTerms.html).
 
-### ChaLearn Rules
-This competition follows the **General ChaLearn Contest Rules** which include:
+By participating, you agree to abide by both these Terms and Conditions and the General ChaLearn Contest Rules.
 
-1. **Fair Play**: All participants must compete fairly and honestly
-2. **Original Work**: Submissions must be original work (pre-trained models and public libraries are allowed)
-3. **No Cheating**: Participants must not attempt to access test labels or exploit system vulnerabilities
-4. **Respect**: All participants must respect other competitors and organizers
-5. **Compliance**: Participants must comply with all competition rules and terms
-
-**Full ChaLearn Rules**: Please read the complete rules at [http://www.causality.inf.ethz.ch/GeneralChalearnContestRuleTerms.html](http://www.causality.inf.ethz.ch/GeneralChalearnContestRuleTerms.html)
-
-By participating in this competition, you agree to abide by both these Terms and Conditions and the General ChaLearn Contest Rules.
+---
 
 ## Participation
 
-- This challenge is open to participants enrolled in the "Creation of an AI Challenge" course at Université Paris-Saclay (2025-26)
-- Participants must register on Codabench to participate
-- Each participant or team can submit multiple solutions during the development phase
-- Final evaluation phase may have submission limits (check competition rules)
+- Open to participants enrolled in the "Creation of an AI Challenge" course at Université Paris-Saclay (2025-26)
+- Registration on Codabench required
+- Multiple submissions allowed during development phase
 
-## Data Usage
+## Rules
 
-- The provided data is for **educational purposes only** within the context of this challenge
-- Data must not be shared, distributed, or used for purposes other than this challenge
-- Participants must not use external datasets that are not provided
-- All data must be deleted after the challenge ends (as per data license)
-
-## Submission Rules
-
-- Submissions must be original work
-- Participants can use publicly available libraries and frameworks
-- Pre-trained models are allowed (transfer learning)
-- Teams must clearly indicate all team members
-- Submissions must follow the format specified in the starting kit
+- **Fair Play**: Compete fairly and honestly
+- **Original Work**: Submissions must be original (pre-trained models and public libraries allowed)
+- **No Cheating**: Do not access test labels or exploit system vulnerabilities
+- **Data Usage**: Data is for educational purposes only, must not be shared or used outside this challenge
+- **Submission Format**: Must follow the format specified in the starting kit
 
 ## Evaluation
 
-- Evaluation is performed automatically by the Codabench platform
-- Results are final and cannot be appealed
-- The organizers reserve the right to disqualify submissions that violate rules
-- Plagiarism or cheating will result in immediate disqualification
+- Automatic evaluation on Codabench
+- Results are final
+- Plagiarism or cheating results in immediate disqualification
 
 ## Intellectual Property
 
 - Participants retain ownership of their code and models
-- By submitting, participants grant the organizers the right to evaluate and display results
-- Winning solutions may be featured in publications or presentations (with attribution)
-
-## Liability
-
-- The organizers are not responsible for any technical issues during submission
-- Participants are responsible for ensuring their submissions work correctly
-- The organizers reserve the right to modify challenge rules if necessary
-
-## Privacy
-
-- Participant information will be used only for challenge administration
-- Results and leaderboards are public
-- Contact information will not be shared without consent
+- Organizers may evaluate, display results, and feature winning solutions (with attribution)
 
 ## Code of Conduct
 
-- All participants must follow academic integrity principles
-- Respectful behavior is expected in all interactions
+- Follow academic integrity principles
+- Respectful behavior required
 - Harassment or inappropriate conduct will not be tolerated
-
-## Changes to Terms
-
-The organizers reserve the right to modify these terms if necessary. Participants will be notified of any significant changes.
 
 ---
 

@@ -57,9 +57,17 @@ leaderboards:
     key: main_leaderboard
     # submission_rule: omitted to allow manual choice (private/public) - default behavior
     # Valid options if needed: "Force_Latest" (auto-add latest), "Force_Latest_Multiple" (auto-add all)
-    # you can add multiple columns if you have multiple scores
+    # Multiple columns for the 3 evaluation metrics
     columns:
       - index: 0
         title: Accuracy
         key: accuracy
+        sort: desc # Sort descending (higher is better)
+      - index: 1
+        title: F1-Score (Macro)
+        key: f1_macro
+        sort: desc # Sort descending (higher is better)
+      - index: 2
+        title: Cohen's Kappa
+        key: cohen_kappa
         sort: desc # Sort descending (higher is better)
