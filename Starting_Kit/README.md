@@ -22,7 +22,10 @@ This repository contains the starting kit for **Group 1 (Grain – Generalizatio
 
 1. Navigate to `Starting_Kit/` folder
 2. Open `README.ipynb` (main notebook)
-3. Run cells in order to explore the baseline
+3. Run cells in order to:
+   - generate a tiny synthetic dataset (no need to download the full data),
+   - explore basic visualizations,
+   - train and evaluate the baseline model.
 
 **Installation**:
 ```bash
@@ -39,7 +42,7 @@ pip install numpy pandas matplotlib scikit-learn jupyter
 - `x`: Grain image (NumPy array) - shape `(252, 252, 3)` for RGB
 - `y`: Variety label (integer, 0-7)
 
-**Loading example**:
+**Loading example** (real data):
 ```python
 data = np.load("grain123.npz")
 image = data["x"]  # Image array
@@ -49,6 +52,15 @@ variety = data["y"]  # Label (integer)
 **Dataset Options**:
 - **RGB** (recommended): 3-channel images, faster, simpler
 - **Spectral**: Multi-channel images, more information but larger
+
+For convenience, the starting kit can generate a **small synthetic dataset** so that the notebook runs end-to-end without the real data:
+
+```python
+from functions import generate_sample_data
+
+# This will create a folder `sample_data/` with a few .npz files
+generate_sample_data(output_dir="sample_data", n_samples=16)
+```
 
 **Tip**: Use `max_samples=1000` for quick testing, remove it for full dataset (~26,000 images)
 
@@ -86,6 +98,18 @@ Submit your model on **Codabench**:
 - Include `requirements.txt` with dependencies
 - Zip both files and submit
 
+You can also let the starting kit **create the submission zip automatically** once you have your `model.py` and `requirements.txt` in the current folder:
+
+```python
+from functions import create_submission_zip
+
+create_submission_zip(
+    model_path="model.py",
+    requirements_path="requirements.txt",
+    output_zip="submission.zip",
+)
+```
+
 **Model Interface** (required):
 ```python
 class Model:
@@ -104,7 +128,7 @@ class Model:
 ## Contact
 
 - **Challenge Leader**: Lubin LONGUEPEE - lubin.longuepee@gmail.com
-- **GitHub**: https://github.com/md-naim-hassan-saykat/grain-1-generalization-ai-challenge
+- **GitHub**: https://github.com/LubinLgp/CreationAiChallenge_Group1
 
 ---
 

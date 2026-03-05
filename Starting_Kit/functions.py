@@ -17,8 +17,11 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import (
-    classification_report, confusion_matrix, accuracy_score,
-    f1_score, cohen_kappa_score
+    classification_report,
+    confusion_matrix,
+    accuracy_score,
+    f1_score,
+    cohen_kappa_score,
 )
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
@@ -96,6 +99,62 @@ def plot_metadata_analysis(metadata):
     
     plt.tight_layout()
     plt.show()
+
+
+def generate_sample_data(
+    output_dir="sample_data",
+    n_samples=16,
+    image_shape=(64, 64, 3),
+    n_classes=8,
+    random_state=42,
+):
+    """
+    Generate a tiny synthetic dataset of .npz files so that the starting
+    kit notebook can run without the real (large) dataset.
+
+    Each file contains:
+      - 'x': random RGB image array in [0, 255], uint8
+      - 'y': integer label in [0, n_classes-1]
+    """
+    rng = np.random.default_rng(random_state)
+    os.makedirs(output_dir, exist_ok=True)
+
+    for i in range(n_samples):
+        x = rng.integers(0, 256, size=image_shape, dtype=np.uint8)
+        y = rng.integers(0, n_classes, dtype=np.int32)
+        fp = os.path.join(output_dir, f"sample_{i:03d}.npz")
+        np.savez_compressed(fp, x=x, y=y)
+
+    print(f"[sample_data] Generated {n_samples} synthetic samples in '{output_dir}'.")
+
+
+def create_submission_zip(
+    model_path="model.py",
+    requirements_path="requirements.txt",
+    output_zip="submission.zip",
+):
+    """
+    Create a Codabench-ready submission zip file.
+
+    This helper zips at least:
+      - model.py  (must define a Model class with __init__/fit/predict)
+      - requirements.txt  (Python dependencies)
+    """
+    missing = []
+    for p in (model_path, requirements_path):
+        if not os.path.isfile(p):
+            missing.append(p)
+    if missing:
+        print(f"[submission] Missing files, cannot create zip: {missing}")
+        return
+
+    with zipfile.ZipFile(output_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.write(model_path, arcname=os.path.basename(model_path))
+        zf.write(requirements_path, arcname=os.path.basename(requirements_path))
+
+    print(
+        f"[submission] Created '{output_zip}' containing '{model_path}' and '{requirements_path}'."
+    )
 
 
 # ============================================================================
